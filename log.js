@@ -66,10 +66,10 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
     //console.log(typeof collection)
     
     var findParams = {
-      $or: [
-        {lastChecked: {$exists: false}},        
-        {follows_you: false},      
-      ]
+      //$or: [
+        lastChecked: {$exists: false},        
+//        follows_you: {$exists: false}},      
+      //]
     }
       //lastChecked: {$exists: false}
     
@@ -83,6 +83,9 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
     //return
     
     collection.find(findParams, options).sort({lastChecked: 1}).toArray(function(err, docs) {
+      if (err) {
+        console.log(err)
+      }
       var screen_names = docs.map(function(doc) {
         return doc.screen_name
       })
