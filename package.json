@@ -1,0 +1,25 @@
+{
+  "name": "twitterbot",
+  "version": "1.0.0",
+  "description": "Bite my shiny metal ass.",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js",
+    "no-hate": "node no-hate.js",
+    "prune": "node prune.js",
+    "atheist": "node atheist.js",
+    "rhe": "node rhe.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "lodash": "^4.15.0",
+    "mongodb": "^2.2.8",
+    "mongoose": "^4.5.10",
+    "tracery": "^1.0.3",
+    "tracery-grammar": "^2.7.2",
+    "twit": "^2.2.4"
+  }
+}
