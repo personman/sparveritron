@@ -1,59 +1,66 @@
 var config = require('./config')
 var twitter = require('./twitter')
 var t = new twitter(config)
+var logger = require('./log')
+var log = new logger()
 
-var minInterval = 1000 * 60 * 5
-
-if (true) {
-	t.watchStream('thank you god', function(tweet) {
-
-	
-		if (Math.random() < 1) {
-			if (!t.lastTimestamp || t.msSinceLastTweet() > minInterval) {
-				t.showTweet(tweet)
-				//t.sayYoureWelcome(tweet)
-				t.replyToTweetWithGrammar(tweet, getGrammar())
-				t.followUser(tweet.user)
-				t.favoriteTweet(tweet)						
-			} else {
-				//console.log("----skipping since we just tweeted recently----")
-
-			}
-			
-		} else {
-			console.log('...Skipped...')
-		}
-		
-	})
-}
-
-function getGrammar()
+var Bot = function()
 {
-	var grammar = 
-		{
-			'welcome-one': [
-				"You're welcome", 
-				"You are very welcome",
-				"No problem", 
-				"Don't mention it", 
-				"My pleasure",
-				"It was nothing",
-				"Sure thing", 
-				"De nada"
-			],
-			'happy': [
-				"Happy to help", 
-				"Just doing my job", 
-				"The least I could do", 
-				"You've always been there for me, so it only seemed right",
-				"I wasn't busy anyway",
-				"I'm always there for you",
-				"Hardly any children starved while I was helping you with that",
-				"I aim to please",
-				"Don't forget to send me 10% of your income"
-			],
-			'origin': ['#welcome-one#! #happy#.']
-		}
-	
-	return grammar
+	//]]this.db =
+
+  this.config = config
+  this.collectionName = 'interactions'
+  this.twitter = t
+  this.screen_names = []
+  this.log = log
 }
+
+Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGrammar, skipRatio)
+{
+  var self = this
+
+  console.log("Watching stream '" + search + "' and following users who mention it.")
+  
+  
+  t.watchStream(search, function(tweet) {
+    // Skip retweets
+    if (tweet.text.indexOf('RT @') == -1) {
+    	// Don't bother them if we've ever interacted before. We're just looking for new folks
+      log.interactionsExist(tweet.user.screen_name, function(exists) {
+    
+        // Slow it down a bit
+        if (typeof skipRatio == 'undefined' || skipRatio == null) skipRatio = 0
+        var ratio = 1 - skipRatio
+        if (Math.random() < 1) {
+          if (!exists) {
+            t.showTweet(tweet)
+            
+            if (follow) {
+              t.followUser(tweet.user)
+            }
+
+            if (favorite) {
+              t.favoriteTweet(tweet)
+            }
+        		
+            // @todo: handle replyGrammar
+            
+        		
+            log.logInteraction(tweet, search, favorite, false, null)
+          } else {
+            //console.log('You have already interacted with @' + tweet.user.screen_name + '. Skipping.')
+          }
+        
+        }
+      })
+    
+    } else {
+      //console.log('RT skipped. ' + tweet.text)
+    }
+  
+  })
+
+  
+}
+
+return module.exports = Bot

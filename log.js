@@ -7,8 +7,6 @@ var _ = require('lodash')
 
 var Log = function()
 {
-	//]]this.db =
-
   this.MongoClient = MongoClient
   this.collectionName = 'interactions'
   this.twitter = t
@@ -221,7 +219,8 @@ Log.prototype.report = function()
       
       collection.aggregate([
         {$match: {lastChecked: {$exists: true}, follows_you: true}},
-        {$group: {_id: '$trigger_search', count: {$sum: 1}}}
+        {$group: {_id: '$trigger_search', count: {$sum: 1}}},
+        {$sort: {count: 1}}
       ]).toArray(function(err, docs) {
         //console.log(docs)
       
@@ -260,6 +259,18 @@ Log.prototype.report = function()
         var table = new Table({
           head: ['Search', 'Interactions', 'Follow You', 'Follow Rate']
         })
+        
+        // Change to an array
+        var reportRows = []
+        self._.forIn(report, function(row, key) {
+          reportRows.push(row)          
+        })
+        
+        // Sort
+        report = self._.sortBy(reportRows, function(o) {
+          return o.follow_rate
+        })
+    
       
         self._.forIn(report, function(row, key) {
           //console.log('hi')
@@ -268,29 +279,9 @@ Log.prototype.report = function()
           
         })
         
-       
-      
+        
         console.log(table.toString())//.toString())
-        
-        
-        
-        
-        var Table = require('cli-table');
-
-        // instantiate
-        var table = new Table({
-            head: ['TH 1 label', 'TH 2 label']
-          , colWidths: [100, 200]
-        });
-
-        // table is an Array, so you can `push`, `unshift`, `splice` and friends
-        table.push(
-            ['First value', 'Second value']
-          , ['First value', 'Second value']
-        );
-
-        //console.log(table.toString());
-        
+                
         
         db.close()
       })
