@@ -10,7 +10,7 @@ var Log = function()
 	//]]this.db =
 
   this.MongoClient = MongoClient
-  this.collectionName = 'twitterbot-log'
+  this.collectionName = 'interactions'
   this.twitter = t
   this.screen_names = []
   this._ = _
@@ -65,11 +65,16 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
     self.collection = collection
     //console.log(typeof collection)
     
+    var searchDate = new Date()
+    var hoursBack = 6
+    searchDate.setTime(searchDate.getTime() - (1000*60*60*hoursBack))
+    
     var findParams = {
-      //$or: [
-        lastChecked: {$exists: false},        
-//        follows_you: {$exists: false}},      
-      //]
+      follows_you: false,
+      $or: [
+        {lastChecked: {$exists: false}},        
+        {lastChecked: {$lte: searchDate}}
+      ]
     }
       //lastChecked: {$exists: false}
     
@@ -86,11 +91,19 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
       if (err) {
         console.log(err)
       }
+      
+      
+      if (!docs || docs.length == 0) {
+        db.close()
+        console.log("Nothing to check.")
+        return
+      }
+      
+      
       var screen_names = docs.map(function(doc) {
         return doc.screen_name
       })
       
-      console.log(screen_names.length)
       
       screen_names = self._.uniq(screen_names)
       //console.log(screen_names.length)
@@ -103,7 +116,13 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
       //console.log(screen_names_string)
       
       self.twitter.getFriendShips(screen_names_string, function(err, friendships) {
+        if (err || friendships.length == 0) {
+          db.close()
+          console.log('Nothing to check')
+          return
         
+        }
+
         var updateCount = friendships.length
         var checkCount = friendships.length
         var followCount = 0
@@ -127,8 +146,10 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
             self.db.close()
             
             // Say goodbye
-            var msg = "Checked " + checkCount + " users and " + followCount + " now follow you: @" + followers.join(', @')
+            var msg = "Checked " + checkCount + " users and " + followCount + " now follow you."
+            var details = " @" + followers.join(', @')
             if (followCount) {
+              msg = msg + details
               console.log(msg.green)
             } else {
               console.log(msg.red)
@@ -194,7 +215,7 @@ Log.prototype.report = function()
       {$match: {lastChecked: {$exists: true}}},
       {$group: {_id: '$trigger_search', count: {$sum: 1}}}
     ]).toArray(function(err, docs) {
-      console.log(docs)
+      //console.log(docs)
       
       var totalsBySearch = docs
       
@@ -202,7 +223,7 @@ Log.prototype.report = function()
         {$match: {lastChecked: {$exists: true}, follows_you: true}},
         {$group: {_id: '$trigger_search', count: {$sum: 1}}}
       ]).toArray(function(err, docs) {
-        console.log(docs)
+        //console.log(docs)
       
         var followsBySearch = docs
         
@@ -210,24 +231,67 @@ Log.prototype.report = function()
         // Loop over the totals
         self._.each(totalsBySearch, function(interaction) {
           var reportRow = {
-            search: interaction.trigger_search,
-            count: interaction.count
+            search: interaction._id,
+            count: interaction.count,
+            follows: 0,
+            follow_rate: 0
           }
           
-          report[interaction.trigger_search] = reportRow
+          //console.log(interaction.search)
+          //console.log(reportRow)
+          
+          //console.log(interaction._id)
+          
+          report[interaction._id] = reportRow
         })
 
         // Now the follows
         self._.each(followsBySearch, function(interaction) {
-          var reportRow = report[interaction.trigger_search]
+          //console.log(interaction)
+          
+          var reportRow = report[interaction._id]
           reportRow.follows = interaction.count
           reportRow.follow_rate = interaction.count / reportRow.count * 100
-          report[interaction.trigger_search] = reportRow
+          report[interaction._id] = reportRow
         })
         
-        console.log(report)
+        
+        var Table = require('cli-table');
+        var table = new Table({
+          head: ['Search', 'Interactions', 'Follow You', 'Follow Rate']
+        })
       
+        self._.forIn(report, function(row, key) {
+          //console.log('hi')
+          var toPush = [row.search, row.count, row.follows, Math.round(row.follow_rate) + '%']
+          table.push(toPush)
+          
+        })
+        
+       
       
+        console.log(table.toString())//.toString())
+        
+        
+        
+        
+        var Table = require('cli-table');
+
+        // instantiate
+        var table = new Table({
+            head: ['TH 1 label', 'TH 2 label']
+          , colWidths: [100, 200]
+        });
+
+        // table is an Array, so you can `push`, `unshift`, `splice` and friends
+        table.push(
+            ['First value', 'Second value']
+          , ['First value', 'Second value']
+        );
+
+        //console.log(table.toString());
+        
+        
         db.close()
       })
       

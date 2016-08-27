@@ -2,7 +2,9 @@ var logger = require('./log')
 var log = new logger()
 
 
-log.checkAndUpdateFollowBack()
+//log.checkAndUpdateFollowBack()
+
+//log.move()
 
 //log.getLog(function(log) {
   //console.log(log)

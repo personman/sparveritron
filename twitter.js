@@ -3,6 +3,15 @@ var tracery = require('tracery-grammar')
 var colors = require('colors');
 var _ = require('lodash')
 
+// Date formatting, why you so bad?
+Date.prototype.getFullMinutes = function () {
+   if (this.getMinutes() < 10) {
+       return '0' + this.getMinutes();
+   }
+   return this.getMinutes();
+};
+
+
 var Twitter = function(config)
 {
 	this.T = new Twit(config);
@@ -62,7 +71,7 @@ Twitter.prototype.followUser = function(user)
         console.log(err)
       } else {
         var now = new Date()
-        var msg = now.getHours() + ':' + now.getMinutes() + ' - Followed: @' + user.screen_name
+        var msg = now.getHours() + ':' + now.getFullMinutes() + ' - Followed: @' + user.screen_name
         console.log(msg.green)
         
       }
