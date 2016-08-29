@@ -295,4 +295,79 @@ Log.prototype.report = function()
   
 }
 
+Log.prototype.interactionsInfo = function(hoursBack)
+{
+  var self = this
+  
+  this.recentFollowCount(hoursBack, function(count) {
+    //var msg = "You followed in the last " + hoursBack + " hours: " + count + "." 
+    //console.log(msg.yellow)
+    var count = count
+    
+    self.recentFollowYouCount(hoursBack, count, function(count, followCount) {
+
+      var rate = Math.round(followCount / count * 100)
+      var msg = "In the last " + hoursBack + " hours this app followed " + count + " and generated " + followCount + " new followers. Rate: " + rate + "%."
+      console.log(msg.yellow)
+    })
+    
+    self.db.close()
+  })
+  
+
+}
+
+Log.prototype.recentFollowCount = function(hoursBack, callback)
+{
+  var self = this
+  var searchDate = new Date()
+  searchDate.setTime(searchDate.getTime() - (1000*60*60*hoursBack))
+  
+  this.whileConnected(function(db) {
+    var collection = self.getLogCollection(db)
+    self.collection = collection
+    //console.log(searchDate)
+
+    var findParams = {
+      created: {$gte: searchDate}
+    }    
+
+    self.db = db
+    collection.find(findParams).count().then(function(count) {
+      callback(count)      
+    })
+      
+  })
+}
+
+Log.prototype.recentFollowYouCount = function(hoursBack, count, callback)
+{
+  var self = this
+  self.count = count
+  
+  var searchDate = new Date()
+  searchDate.setTime(searchDate.getTime() - (1000*60*60*hoursBack))
+  
+  this.whileConnected(function(db) {
+    var collection = self.getLogCollection(db)
+    self.collection = collection
+    
+    var findParams = {
+      created: {$gte: searchDate},
+      follows_you: true
+    }    
+    
+    
+    //console.log(findParams)
+    self.db = db
+    var count = count
+    
+    collection.find(findParams).count().then(function(followCount) {
+      callback(self.count, followCount)
+      db.close()      
+    })
+      
+  })
+}
+
 return module.exports = Log

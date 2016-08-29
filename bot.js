@@ -33,6 +33,7 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
         var ratio = 1 - skipRatio
         if (Math.random() < 1) {
           if (!exists) {
+            console.log('--------------------------------------')
             t.showTweet(tweet)
             
             if (follow) {
@@ -47,6 +48,7 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
             
         		
             log.logInteraction(tweet, search, favorite, false, null)
+            
           } else {
             //console.log('You have already interacted with @' + tweet.user.screen_name + '. Skipping.')
           }
