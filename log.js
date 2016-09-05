@@ -2,7 +2,7 @@ var MongoClient = require('mongodb').MongoClient;
 
 var config = require('./config')
 var twitterJs = require('./twitter')
-var t = new twitterJs(config)
+var t = new twitterJs(config.twitter)
 var _ = require('lodash')
 
 var Log = function()
@@ -11,6 +11,7 @@ var Log = function()
   this.collectionName = 'interactions'
   this.twitter = t
   this.screen_names = []
+  this.dbUrl = config.dbUrl
   this._ = _
 }
 
@@ -41,7 +42,8 @@ Log.prototype.getLogCollection = function(db)
 
 Log.prototype.whileConnected = function(callback)
 {
-  var url = 'mongodb://localhost:27017/test';
+  var url = this.dbUrl
+  
   this.MongoClient.connect(url, function(err, db) {
     if (err) {
       console.log(err)
@@ -201,16 +203,25 @@ Log.prototype.interactionsExist = function(screen_name, callback)
   })
 }
 
-Log.prototype.report = function()
+Log.prototype.report = function(hoursBack)
 {
   var self = this
+  
+  if (hoursBack) {
+    var searchDate = new Date()
+    searchDate.setTime(searchDate.getTime() - (1000*60*60*hoursBack))  
+  }
+  
+  var title = "Interaction Report for Previous " + hoursBack + " Hours"
+  console.log(title.bold.green)
+  
   this.whileConnected(function(db) {
     var collection = self.getLogCollection(db)
     self.collection = collection
     
     // Get totals for each search
     collection.aggregate([
-      {$match: {lastChecked: {$exists: true}}},
+      {$match: {lastChecked: {$exists: true}, created: {$gt: searchDate}}},
       {$group: {_id: '$trigger_search', count: {$sum: 1}}}
     ]).toArray(function(err, docs) {
       //console.log(docs)
@@ -218,7 +229,7 @@ Log.prototype.report = function()
       var totalsBySearch = docs
       
       collection.aggregate([
-        {$match: {lastChecked: {$exists: true}, follows_you: true}},
+        {$match: {lastChecked: {$exists: true}, follows_you: true, created: {$gt: searchDate}}},
         {$group: {_id: '$trigger_search', count: {$sum: 1}}},
         {$sort: {count: 1}}
       ]).toArray(function(err, docs) {

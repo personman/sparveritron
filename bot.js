@@ -1,6 +1,6 @@
 var config = require('./config')
 var twitter = require('./twitter')
-var t = new twitter(config)
+var t = new twitter(config.twitter)
 var logger = require('./log')
 var log = new logger()
 
