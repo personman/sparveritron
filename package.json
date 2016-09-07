@@ -4,11 +4,10 @@
   "description": "Bite my shiny metal ass.",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js",
-    "no-hate": "node no-hate.js",
+    "check": "node check.js",
+    "report": "node report.js",
+    "interact": "node interact.js",
     "prune": "node prune.js",
-    "atheist": "node atheist.js",
-    "rhe": "node rhe.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",

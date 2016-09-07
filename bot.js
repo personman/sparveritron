@@ -6,8 +6,6 @@ var log = new logger()
 
 var Bot = function()
 {
-	//]]this.db =
-
   this.config = config
   this.collectionName = 'interactions'
   this.twitter = t
@@ -15,6 +13,10 @@ var Bot = function()
   this.log = log
 }
 
+/**
+ * Search is the "track" parameter: https://dev.twitter.com/streaming/overview/request-parameters#track
+ * The API method used: https://dev.twitter.com/streaming/overview/request-parameters#track
+ */
 Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGrammar, skipRatio)
 {
   var self = this
