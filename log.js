@@ -59,11 +59,8 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
 {
   var self = this
   this.whileConnected(function(db) {
-    //console.log(db)
-    //console.log(db[self.collectionName])
     var collection = self.getLogCollection(db)
     self.collection = collection
-    //console.log(typeof collection)
     
     var searchDate = new Date()
     var hoursBack = 6
@@ -76,17 +73,12 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
         {lastChecked: {$lte: searchDate}}
       ]
     }
-      //lastChecked: {$exists: false}
     
-      var options = {
-        "limit": 100,
-      }
-    
-    self.db = db
-    // Clear bad ones (one time)
-    //collection.remove(findParams)
-    //return
-    
+    var options = {
+      "limit": 100,
+    }
+  
+    self.db = db    
     collection.find(findParams, options).sort({lastChecked: 1}).toArray(function(err, docs) {
       if (err) {
         console.log(err)
@@ -140,7 +132,7 @@ Log.prototype.checkAndUpdateFollowBack = function(callback)
           
           self.updateLogItem(screen_name, follows_you)
           
-          updateCount--// = updateCount - 1
+          updateCount--
           
           if (updateCount == 0) {
             self.db.close()
@@ -246,19 +238,12 @@ Log.prototype.report = function(hoursBack)
             follows: 0,
             follow_rate: 0
           }
-          
-          //console.log(interaction.search)
-          //console.log(reportRow)
-          
-          //console.log(interaction._id)
-          
+                   
           report[interaction._id] = reportRow
         })
 
         // Now the follows
         self._.each(followsBySearch, function(interaction) {
-          //console.log(interaction)
-          
           var reportRow = report[interaction._id]
           reportRow.follows = interaction.count
           reportRow.follow_rate = interaction.count / reportRow.count * 100
@@ -311,8 +296,6 @@ Log.prototype.interactionsInfo = function(hoursBack)
   var self = this
   
   this.recentFollowCount(hoursBack, function(count) {
-    //var msg = "You followed in the last " + hoursBack + " hours: " + count + "." 
-    //console.log(msg.yellow)
     var count = count
     
     self.recentFollowYouCount(hoursBack, count, function(count, followCount) {
@@ -368,8 +351,6 @@ Log.prototype.recentFollowYouCount = function(hoursBack, count, callback)
       follows_you: true
     }    
     
-    
-    //console.log(findParams)
     self.db = db
     var count = count
     

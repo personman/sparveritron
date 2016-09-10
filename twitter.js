@@ -283,8 +283,9 @@ Twitter.prototype.processUnfollows = function()
     var toUnfollow = self.toUnfollow.pop()
     
     console.log(self.toUnfollow.length + " remaining to unfollow.")
-  
+  console.log(toUnfollow)
     self.T.post('friendships/destroy', { id: toUnfollow }, function(err, reply) {
+      console.log(reply)
       var msg = "Unfriended @" + reply.screen_name + '.'
       console.log(msg.red) 
       // Again!
