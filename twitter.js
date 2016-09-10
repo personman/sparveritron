@@ -86,79 +86,9 @@ Twitter.prototype.replyToTweetWithGrammar = function(tweet, grammar)
   this.replyToTweet(tweet, reply)
 }
 
-Twitter.prototype.sayYoureWelcome = function(tweet)
-{
-	var grammar = this.getYoureWelcomeGrammar()
-	var reply = grammar.flatten('#origin#')
-	this.replyToTweet(tweet, reply)
-}
-
-Twitter.prototype.getYoureWelcomeGrammar = function()
-{
-	var grammar = tracery.createGrammar(
-		{
-			'welcome-one': [
-				"You're welcome", 
-				"You are very welcome",
-				"No problem", 
-				"Don't mention it", 
-				"My pleasure",
-				"It was nothing",
-				"Sure thing", 
-				"De nada"
-			],
-			'happy': [
-				"Happy to help", 
-				"Just doing my job", 
-				"The least I could do", 
-				"You've always been there for me, so it only seemed right",
-				"I wasn't busy anyway",
-				"I'm always there for you",
-				"Hardly any children starved while I was helping you with that",
-				"I aim to please",
-				"Don't forget to send me 10% of your income"
-			],
-			'origin': ['#welcome-one#! #happy#.']
-		}
-	)
-	
-	return grammar
-}
-
-Twitter.prototype.sayNoHate = function(tweet)
-{
-	var grammar = this.getNoHateGrammar()
-	var reply = grammar.flatten('#origin#')
-	this.replyToTweet(tweet, reply)
-}
 
 
-Twitter.prototype.getNoHateGrammar = function()
-{
-	var grammar = tracery.createGrammar(
-		{
-			'i-am-love': [
-				"I am love", 
-				"God is love", 
-				"The LORD is pure love", 
-			],
-			'no-hate': [
-				"I don't hate anything (except #do-hate#)",
-				"I only hate #do-hate#"
-			],
-			'do-hate': [
-				"shellfish",
-				"bacon",
-				"televangelists",
-				"@tperkins",
-				"history-mangling dingus @DavidBartonWB"
-			],
-			'origin': ['#i-am-love#. #no-hate#!']
-		}
-	)
-	
-	return grammar
-}
+
 
 Twitter.prototype.watchStream = function(track, callback)
 {
@@ -191,8 +121,6 @@ Twitter.prototype.getAllFollowerIds = function(cursor, callback)
     
 		if (reply.next_cursor && reply.next_cursor != cursor) {
 			self.getAllFollowerIds(reply.next_cursor, callback)
-      //console.log(cursor)
-      //console.log(reply.next_cursor)
 		} else {
 			callback(self.followerIds)
 		}
@@ -219,8 +147,6 @@ Twitter.prototype.getAllFriendIds = function(cursor, callback)
     
 		if (reply.next_cursor && reply.next_cursor != cursor) {
 			self.getAllFriendIds(reply.next_cursor, callback)
-      //console.log(cursor)
-      //console.log(reply.next_cursor)
 		} else {
 			callback(self.friendIds)
 		}
@@ -237,24 +163,17 @@ Twitter.prototype.diff = function(array1, array2)
   return d;
 }
 
-Twitter.prototype.pruneFriendsTwoNope = function()
-{
-  var self = this;
-  
-	//this.getAllFollowerIds(null, function(followerIds) {
-  this.getAllFollowerIds(null, function(followerIds) {
-	  console.log(followerIds.length)
-	})
-  
-}
 
+/**
+ * PruneFriends will unfollow everyone who doesn't follow you back
+ */
 Twitter.prototype.pruneFriends = function()
 {
   var self = this;
+  var followInterval = 1000
   
   this.getAllFriendIds(null, function(friendIds) {
   	console.log("You follow " + friendIds.length)
-    console.log("Sleeping for 25 minutes to avoid rate limits....")
     self.displayCountdown(25)
     var friends = friendIds
     
@@ -271,7 +190,7 @@ Twitter.prototype.pruneFriends = function()
           self.processUnfollows()
         })
       },
-      1000 //* 60 * 25
+      followInterval 
     )
   })
 }
@@ -314,52 +233,6 @@ Twitter.prototype.msSinceLastTweet = function()
 	return interval
 }
 
-Twitter.prototype.replyToTrumpkin = function(tweet)
-{
-	var grammar = this.getTrumpkinGrammar()
-	var reply = grammar.flatten('#origin#')
-	this.replyToTweet(tweet, reply)
-}
-
-Twitter.prototype.getTrumpkinGrammar = function()
-{
-	var grammar = tracery.createGrammar(
-		{
-			'trumpkin': [
-				"Why does Trump pretend to be a #faithhed#? #not-christian#", 
-        "Trump is not a #faithhed#. #not-christian#",
-        "Trump's not a #faithhed#. #not-christian#",
-				"I've checked the Book of Life and @realDonaldTrump's name is not in it.", 
-				"Take the quiz: Who said it, Trump or Jesus? http://trumporjesus.com/",
-        "it is easier for a camel to go through the eye of a needle than for someone who is rich to enter the kingdom of God. Matthew 19:24" 
-			],
-			'faithhed': [
-				"Christian",
-				"follower of Christ",
-        "believer",
-        "Bible-believing Christian",
-        "true disciple",
-        "follower of the Way"
-        
-			],
-			'not-christian': [
-				"He's never read the Bible.",
-				"'Two Corinthians!' LOL!",
-				"He's faking. Don't be fooled.",
-				"He is an unrepentant adulturer.",
-				"He said he's never asked forgiveness from God. Can't be a #faithhed# without that.",
-        "He runs casinos, dens of sin.",
-        "He cheated on every woman he married.",
-        "His 'church' says he's not a member.",
-        "He's a fan of torture. As a former torture victim, Jesus does not approve.",
-        "When asked for a his favorite Bible verse, Trump made one up!"
-			],
-			'origin': ['#trumpkin#']
-		}
-	)
-	
-	return grammar
-}
 
 Twitter.prototype.displayCountdown = function(minutes)
 {
@@ -387,7 +260,6 @@ Twitter.prototype.getFriendShips = function(screen_name, callback) {
   })
   
 } 
-
 
 
 return module.exports = Twitter

@@ -5,17 +5,3 @@ var t = new twitter(config.twitter)
 var interval = 1000 * 60 * 5 // Once 5 minutes
 
 t.pruneFriends()
-//t.pruneFriendsTwoNope()
-
-	
-	
-
-/*
-t.pruneFriends(5)
-
-setInterval(
-	function() {
-		t.pruneFriends(5)
-	}, 
-	interval
-)*/
