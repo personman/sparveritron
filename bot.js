@@ -21,7 +21,7 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
 {
   var self = this
 
-  console.log("Watching stream '" + search + "' and following users who mention it.")
+  console.log("Watching stream '" + search + "' and following users who mention it. (Press ctrl-C to stop.)")
   
   
   t.watchStream(search, function(tweet) {
