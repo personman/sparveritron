@@ -1,7 +1,7 @@
 Sparveritron
 ========
 
-Sparveritron is a set of node.js scripts for interacting with Twitter. 
+Sparveritron is a set of node.js scripts for interacting with Twitter. Created by Dan Ferguson @personman.
 
 
 Installation
@@ -28,7 +28,7 @@ To unfollow all users who don't follow you:
 node prune
 ```
 
-To watch a Twitter stream and interact with it:
+To watch a Twitter stream (based on the [track parameter](https://dev.twitter.com/streaming/overview/request-parameters#track)) and interact with it:
 ```
 node interact "#hashtagIWantToWatch"
 ```
