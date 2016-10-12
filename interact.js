@@ -8,9 +8,9 @@ search = search.replace(/['"]+/g, '');
 // If another argument is passed in, open the file as json and pass as a reply grammar (Tracery)
 var replyGrammar = loadJsonGrammar(process.argv[3])
 
-var follow = false
-var favorite = true
-var waitMs = 20 * 1000 // Don't interact any more often then once per minute
+var follow = true
+var favorite = false
+var waitMs = 120 * 1000 // Don't interact any more often than this (milliseconds).
 
 
 // Start.
@@ -31,9 +31,9 @@ function loadJsonGrammar(file)
       console.log(e)
       replyGrammar = null
     }
-  
+
   }
-  
+
   if (file) {
     if (replyGrammar) {
       var grammarString = JSON.stringify(replyGrammar);
@@ -44,4 +44,3 @@ function loadJsonGrammar(file)
 
   return replyGrammar
 }
-
