@@ -79,14 +79,27 @@ Twitter.prototype.followUser = function(user)
 	);
 }
 
-Twitter.prototype.replyToTweetWithGrammar = function(tweet, grammar)
+Twitter.prototype.replyToTweetWithGrammar = function(tweet, grammarJson)
 {
-  var grammar = tracery.createGrammar(grammar)
-  var reply = grammar.flatten('#origin#')
+  reply = this.getResultFromGrammar(grammarJson)
   this.replyToTweet(tweet, reply)
+  this.showReply(reply)
+}
+
+Twitter.prototype.showReply = function(reply)
+{
+  var msg = "Replied: " + reply
+  console.log(msg.green)
 }
 
 
+Twitter.prototype.getResultFromGrammar = function(grammarJson)
+{
+  var grammar = tracery.createGrammar(grammarJson)
+  var reply = grammar.flatten('#origin#')
+
+  return reply
+}
 
 
 
@@ -202,10 +215,10 @@ Twitter.prototype.processUnfollows = function()
     var toUnfollow = self.toUnfollow.pop()
     
     console.log(self.toUnfollow.length + " remaining to unfollow.")
-  console.log(toUnfollow)
+  
     self.T.post('friendships/destroy', { id: toUnfollow }, function(err, reply) {
-      console.log(reply)
-      var msg = "Unfriended @" + reply.screen_name + '.'
+      //console.log(reply)
+      var msg = "Unfollowed @" + reply.screen_name + '.'
       console.log(msg.red) 
       // Again!
       setTimeout(

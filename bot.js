@@ -11,31 +11,35 @@ var Bot = function()
   this.twitter = t
   this.screen_names = []
   this.log = log
+  this.lastInteractionTime = null;
+  this.skipCount = 0;
 }
 
 /**
  * Search is the "track" parameter: https://dev.twitter.com/streaming/overview/request-parameters#track
  * The API method used: https://dev.twitter.com/streaming/overview/request-parameters#track
  */
-Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGrammar, skipRatio)
+Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGrammar, waitMs)
 {
   var self = this
-
+  
   console.log("Watching stream '" + search + "' and following users who mention it. (Press ctrl-C to stop.)")
   
   
   t.watchStream(search, function(tweet) {
     // Skip retweets
     if (tweet.text.indexOf('RT @') == -1) {
-    	// Don't bother them if we've ever interacted before. We're just looking for new folks
-      log.interactionsExist(tweet.user.screen_name, function(exists) {
+      
+      if (self.waitCheck(waitMs)) {
+      
+      	// Don't bother them if we've ever interacted before. We're just looking for new folks
+        log.interactionsExist(tweet.user.screen_name, function(exists) {
     
-        // Slow it down a bit
-        if (typeof skipRatio == 'undefined' || skipRatio == null) skipRatio = 0
-        var ratio = 1 - skipRatio
-        if (Math.random() < 1) {
           if (!exists) {
             console.log('--------------------------------------')
+            
+            self.showSkipCount();
+            
             t.showTweet(tweet)
             
             if (follow) {
@@ -47,24 +51,70 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
             }
         		
             // @todo: handle replyGrammar
+            replied = reply = null
+            if (replyGrammar) {
+              if (reply = t.getResultFromGrammar(replyGrammar)) {
+                t.replyToTweetWithGrammar(tweet, replyGrammar)
+                replied = true
+              } else {
+                console.log("Error processing reply grammar.".red)
+              }
+              
+            }
             
         		
-            log.logInteraction(tweet, search, favorite, false, null)
+            log.logInteraction(tweet, search, favorite, replied, reply)
             
-          } else {
-            //console.log('You have already interacted with @' + tweet.user.screen_name + '. Skipping.')
-          }
+      
+      
+            
+            
+            self.lastInteractionTime = Date.now()
+            self.skipCount = 0;      
+          } 
         
-        }
+          //}
       })
     
-    } else {
-      //console.log('RT skipped. ' + tweet.text)
+      } 
     }
   
   })
-
   
+  Bot.prototype.waitCheck = function(waitMs)
+  {
+    var go = false;
+    if (!this.lastInteractionTime || (Date.now() - this.lastInteractionTime) > waitMs) {
+      
+      var elapsed = Date.now() - this.lastInteractionTime
+      go = true
+
+      
+      
+      
+    } else {
+      var elapsed = Date.now() - this.lastInteractionTime
+      var secondsToGo = Math.floor((waitMs - elapsed) / 1000)
+      var msg = "Waiting " + secondsToGo + " seconds."
+      //console.log(msg.grey)
+      
+      this.skipCount++;
+    }
+    
+    
+    
+    return go;
+  }
+
+  Bot.prototype.showSkipCount = function() 
+  {
+    var msg = ''
+    if (self.skipCount) {
+      msg = msg +  self.skipCount + " skipped."
+      console.log(msg.grey)
+    }
+  }
 }
+
 
 return module.exports = Bot
