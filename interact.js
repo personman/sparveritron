@@ -10,8 +10,8 @@ var replyGrammar = loadJsonGrammar(process.argv[3])
 
 var follow = true
 var favorite = false
-var waitMs = 120 * 1000 // Don't interact any more often than this (milliseconds).
-
+var waitMs = 2 * 60 * 1000 // Don't interact any more often than this (milliseconds).
+//waitMs = 30 * 1000
 
 // Start.
 try {

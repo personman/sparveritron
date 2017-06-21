@@ -36,7 +36,7 @@ Log.prototype.logInteraction = function(tweet, search, favorited, replied, reply
 }
 
 Log.prototype.getLogCollection = function(db)
-{
+{  
   return db.collection(this.collectionName)
 }
 
@@ -48,8 +48,15 @@ Log.prototype.whileConnected = function(callback)
     if (err) {
       console.log(err)
     }
+
+    if (!db) {
+      console.log("Cannot connect to db.")
+      process.exit()
+    } else {
+        callback(db)
+    }
     
-    callback(db)
+    
     
     //db.close()
   })
