@@ -3,6 +3,10 @@ var bot = new Bot()
 var jsonfile = require('jsonfile')
 
 var search = process.argv[2]
+if (!search) {
+  console.log("Enter a search term.")
+  process.exit()
+}
 search = search.replace(/['"]+/g, '');
 
 // If another argument is passed in, open the file as json and pass as a reply grammar (Tracery)
@@ -10,8 +14,9 @@ var replyGrammar = loadJsonGrammar(process.argv[3])
 
 var follow = true
 var favorite = false
-var waitMs = 2 * 60 * 1000 // Don't interact any more often than this (milliseconds).
-//waitMs = 30 * 1000
+// Key:    minutes * seconds * ms
+var waitMs = 61 * 60 * 1000 // Don't interact any more often than this (milliseconds).
+waitMs = 600 * 1000
 
 // Start.
 try {

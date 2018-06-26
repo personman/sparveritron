@@ -50,7 +50,8 @@ Twitter.prototype.replyToTweet = function(tweet, reply)
 			status: status
 		}, 
 		function(err, data, response) { 
-			console.log("Reply: ".blue + status)
+      if (err) console.log(err)
+			//console.log("Replied: ".blue + status.blue)
 		}
 	)
 	this.lastTimestamp = new Date()
@@ -106,7 +107,7 @@ Twitter.prototype.getResultFromGrammar = function(grammarJson)
 Twitter.prototype.watchStream = function(track, callback)
 {
 	var stream = this.T.stream('statuses/filter', { track: track })
- 
+
 	stream.on('tweet', callback)
 	
 }

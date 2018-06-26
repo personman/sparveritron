@@ -30,9 +30,13 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
   t.watchStream(search, function(tweet) {
     // Skip retweets
     if (tweet.text.indexOf('RT @') == -1) {
-
-      if (self.waitCheck(waitMs)) {
-
+      
+      if (!self.waitCheck(waitMs)) {
+        var waitSeconds = waitMs / 1000;
+        msg = "Skipping tweet because it has not yet been " + waitSeconds + " seconds."
+        //console.log(msg.grey)
+      } else {
+        
       	// Don't bother them if we've ever interacted before. We're just looking for new folks
         log.interactionsExist(tweet.user.screen_name, function(exists) {
 
@@ -57,7 +61,7 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
               if (replyGrammar) {
                 try {
                   if (reply = t.getResultFromGrammar(replyGrammar)) {
-                    t.replyToTweetWithGrammar(tweet, replyGrammar)
+                    //t.replyToTweetWithGrammar(tweet, replyGrammar)
                     replied = true
                   } else {
                     throw "Error processing reply grammar."
@@ -100,7 +104,8 @@ Bot.prototype.interactWithSearch = function(search, follow, favorite, replyGramm
       var elapsed = Date.now() - this.lastInteractionTime
       var secondsToGo = Math.floor((waitMs - elapsed) / 1000)
       var msg = "Waiting " + secondsToGo + " seconds."
-      //console.log(msg.grey)
+      process.stdout.write(msg.grey + '\r')
+//      console.log(msg.grey)
 
       this.skipCount++;
     }
